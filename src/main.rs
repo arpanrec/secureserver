@@ -54,7 +54,6 @@ async fn handle_delete(Path(path): Path<String>) -> Response<String> {
     Response::new("".to_string())
 }
 
-// pub fn any<H, T, S>(handler: H) -> MethodRouter<S, Infallible>
 async fn handle_any(Path(path): Path<String>, request: Request<Body>) -> Response<String> {
     println!(
         "Received request for lock with method: {:?}",
