@@ -2,11 +2,8 @@
 //!
 //! First parameter is the mandatory URL to GET.
 //! Second parameter is an optional path to CA store.
-use http::Uri;
-use http_body_util::{BodyExt, Empty};
-use hyper::body::Bytes;
+use hyper::{body::to_bytes, client, Body, Uri};
 use hyper_rustls::ConfigBuilderExt;
-use hyper_util::{client::legacy::Client, rt::TokioExecutor};
 use rustls::RootCertStore;
 
 use std::str::FromStr;
@@ -26,12 +23,6 @@ fn error(err: String) -> io::Error {
 
 #[tokio::main]
 async fn run_client() -> io::Result<()> {
-    // Set a process wide default crypto provider.
-    #[cfg(feature = "ring")]
-    let _ = rustls::crypto::ring::default_provider().install_default();
-    #[cfg(feature = "aws-lc-rs")]
-    let _ = rustls::crypto::aws_lc_rs::default_provider().install_default();
-
     // First parameter is target URL (mandatory).
     let url = match env::args().nth(1) {
         Some(ref url) => Uri::from_str(url).map_err(|e| error(format!("{}", e)))?,
@@ -77,7 +68,7 @@ async fn run_client() -> io::Result<()> {
         .build();
 
     // Build the hyper client from the HTTPS connector.
-    let client: Client<_, Empty<Bytes>> = Client::builder(TokioExecutor::new()).build(https);
+    let client: client::Client<_, hyper::Body> = client::Client::builder().build(https);
 
     // Prepare a chain of futures which sends a GET request, inspects
     // the returned headers, collects the whole body and prints it to
@@ -90,12 +81,10 @@ async fn run_client() -> io::Result<()> {
         println!("Status:\n{}", res.status());
         println!("Headers:\n{:#?}", res.headers());
 
-        let body = res
-            .into_body()
-            .collect()
+        let body: Body = res.into_body();
+        let body = to_bytes(body)
             .await
-            .map_err(|e| error(format!("Could not get body: {:?}", e)))?
-            .to_bytes();
+            .map_err(|e| error(format!("Could not get body: {:?}", e)))?;
         println!("Body:\n{}", String::from_utf8_lossy(&body));
 
         Ok(())

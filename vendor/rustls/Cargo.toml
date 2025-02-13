@@ -11,18 +11,10 @@
 
 [package]
 edition = "2021"
-rust-version = "1.71"
+rust-version = "1.61"
 name = "rustls"
-version = "0.23.23"
+version = "0.22.4"
 build = "build.rs"
-exclude = [
-    "src/testdata",
-    "tests/**",
-]
-autolib = false
-autobins = false
-autoexamples = false
-autotests = false
 autobenches = false
 description = "Rustls is a modern TLS library written in Rust."
 homepage = "https://github.com/rustls/rustls"
@@ -41,22 +33,20 @@ allowed_external_types = [
 ]
 
 [package.metadata.docs.rs]
-features = [
-    "read_buf",
-    "ring",
-]
+all-features = true
 rustdoc-args = [
     "--cfg",
     "docsrs",
 ]
 
-[lib]
-name = "rustls"
-path = "src/lib.rs"
+[[example]]
+name = "bogo_shim"
+path = "examples/internal/bogo_shim.rs"
+required-features = ["tls12"]
 
 [[example]]
-name = "test_ca"
-path = "examples/internal/test_ca.rs"
+name = "bench"
+path = "examples/internal/bench.rs"
 
 [[bench]]
 name = "benchmarks"
@@ -65,48 +55,16 @@ harness = false
 required-features = ["ring"]
 
 [dependencies.aws-lc-rs]
-version = "1.12"
-features = [
-    "aws-lc-sys",
-    "prebuilt-nasm",
-]
+version = "1.5"
 optional = true
-default-features = false
-
-[dependencies.brotli]
-version = "7"
-features = ["std"]
-optional = true
-default-features = false
-
-[dependencies.brotli-decompressor]
-version = "4.0.1"
-optional = true
-
-[dependencies.hashbrown]
-version = "0.15"
-features = [
-    "default-hasher",
-    "inline-more",
-]
-optional = true
-default-features = false
 
 [dependencies.log]
-version = "0.4.8"
+version = "0.4.4"
 optional = true
 
-[dependencies.once_cell]
-version = "1.16"
-features = [
-    "alloc",
-    "race",
-]
-default-features = false
-
 [dependencies.pki-types]
-version = "1.10"
-features = ["alloc"]
+version = "1"
+features = ["std"]
 package = "rustls-pki-types"
 
 [dependencies.ring]
@@ -118,104 +76,50 @@ version = "2.5.0"
 default-features = false
 
 [dependencies.webpki]
-version = "0.102.8"
-features = ["alloc"]
+version = "0.102.1"
+features = ["std"]
 default-features = false
 package = "rustls-webpki"
 
 [dependencies.zeroize]
-version = "1.7"
-
-[dependencies.zlib-rs]
-version = "0.4"
-optional = true
+version = "1.6.0"
 
 [dev-dependencies.base64]
-version = "0.22"
+version = "0.21"
 
 [dev-dependencies.bencher]
 version = "0.1.5"
 
 [dev-dependencies.env_logger]
-version = "0.11"
-
-[dev-dependencies.hex]
-version = "0.4"
+version = "0.10"
 
 [dev-dependencies.log]
-version = "0.4.8"
-
-[dev-dependencies.macro_rules_attribute]
-version = "0.2"
-
-[dev-dependencies.num-bigint]
 version = "0.4.4"
 
-[dev-dependencies.rcgen]
-version = "0.13"
-features = [
-    "pem",
-    "aws_lc_rs",
-]
-default-features = false
-
-[dev-dependencies.serde]
-version = "1"
-features = ["derive"]
-
-[dev-dependencies.serde_json]
-version = "1"
-
-[dev-dependencies.time]
-version = "0.3.6"
-default-features = false
+[dev-dependencies.rustls-pemfile]
+version = "2"
 
 [dev-dependencies.webpki-roots]
 version = "0.26"
-
-[dev-dependencies.x509-parser]
-version = "0.17"
 
 [build-dependencies.rustversion]
 version = "1.0.6"
 optional = true
 
 [features]
-aws-lc-rs = ["aws_lc_rs"]
 aws_lc_rs = [
     "dep:aws-lc-rs",
     "webpki/aws_lc_rs",
 ]
-brotli = [
-    "dep:brotli",
-    "dep:brotli-decompressor",
-    "std",
-]
-custom-provider = []
 default = [
-    "aws_lc_rs",
     "logging",
-    "std",
+    "ring",
     "tls12",
 ]
-fips = [
-    "aws_lc_rs",
-    "aws-lc-rs?/fips",
-]
 logging = ["log"]
-prefer-post-quantum = ["aws_lc_rs"]
-read_buf = [
-    "rustversion",
-    "std",
-]
+read_buf = ["rustversion"]
 ring = [
     "dep:ring",
     "webpki/ring",
 ]
-std = [
-    "webpki/std",
-    "pki-types/std",
-    "once_cell/std",
-]
 tls12 = []
-zlib = ["dep:zlib-rs"]

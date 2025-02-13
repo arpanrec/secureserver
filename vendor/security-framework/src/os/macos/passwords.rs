@@ -46,7 +46,6 @@ impl AsRef<[u8]> for SecKeychainItemPassword {
 
 impl Deref for SecKeychainItemPassword {
     type Target = [u8];
-
     #[inline(always)]
     fn deref(&self) -> &Self::Target {
         self.as_ref()
@@ -90,7 +89,8 @@ impl SecKeychainItem {
 /// The underlying system supports passwords with 0 values, so this
 /// returns a vector of bytes rather than a string.
 ///
-/// * `keychains` is an array of keychains to search or None to search the default keychain.
+/// * `keychains` is an array of keychains to search or None to search
+///   the default keychain.
 /// * `service` is the name of the service to search for.
 /// * `account` is the name of the account to search for.
 pub fn find_generic_password(
@@ -167,7 +167,8 @@ pub fn find_internet_password(
             server.len() as u32,
             server.as_ptr().cast(),
             security_domain.map_or(0, |s| s.len() as u32),
-            security_domain.map_or(ptr::null(), |s| s.as_ptr().cast()),
+            security_domain
+                .map_or(ptr::null(), |s| s.as_ptr().cast()),
             account.len() as u32,
             account.as_ptr().cast(),
             path.len() as u32,
@@ -327,7 +328,8 @@ impl SecKeychain {
                 server.len() as u32,
                 server.as_ptr().cast(),
                 security_domain.map_or(0, |s| s.len() as u32),
-                security_domain.map_or(ptr::null(), |s| s.as_ptr().cast()),
+                security_domain
+                    .map_or(ptr::null(), |s| s.as_ptr().cast()),
                 account.len() as u32,
                 account.as_ptr().cast(),
                 path.len() as u32,
@@ -380,8 +382,8 @@ mod test {
     }
 
     #[test]
-    #[ignore]
-    fn default_keychain_test_missing_password_default() {
+    #[cfg(feature = "default_keychain_tests")]
+    fn missing_password_default() {
         let service = "default_this_service_does_not_exist";
         let account = "this_account_is_bogus";
         let found = find_generic_password(None, service, account);
@@ -411,8 +413,8 @@ mod test {
     }
 
     #[test]
-    #[ignore]
-    fn default_keychain_test_round_trip_password_default() {
+    #[cfg(feature = "default_keychain_tests")]
+    fn round_trip_password_default() {
         let service = "test_round_trip_password_default";
         let account = "this_is_the_test_account";
         let password = String::from("deadbeef").into_bytes();
@@ -458,8 +460,8 @@ mod test {
     }
 
     #[test]
-    #[ignore]
-    fn default_keychain_test_change_password_default() {
+    #[cfg(feature = "default_keychain_tests")]
+    fn change_password_default() {
         let service = "test_change_password_default";
         let account = "this_is_the_test_account";
         let pw1 = String::from("password1").into_bytes();
@@ -477,7 +479,8 @@ mod test {
             .expect("default keychain")
             .set_generic_password(service, account, &pw2)
             .expect("set_generic_password2");
-        let (found, item) = find_generic_password(None, service, account).expect("find_generic_password2");
+        let (found, item) =
+            find_generic_password(None, service, account).expect("find_generic_password2");
         assert_eq!(found.to_owned(), pw2);
 
         item.delete();

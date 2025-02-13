@@ -1,10 +1,14 @@
-FROM docker.io/library/rust:1.84.1-bullseye as builder
+FROM docker.io/library/rust:1.84.1-bullseye AS builder
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libssl-dev \
+    pkg-config sqlite3
 
 WORKDIR /usr/src/app
 
 COPY . .
 
-RUN cargo build --release
+RUN cargo build --release --offline
 
 FROM docker.io/library/debian:bullseye-slim
 

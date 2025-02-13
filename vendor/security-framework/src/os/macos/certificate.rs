@@ -1,7 +1,8 @@
 //! OSX specific extensions to certificate functionality.
 
 use core_foundation::array::{CFArray, CFArrayIterator};
-use core_foundation::base::{TCFType, ToVoid};
+use core_foundation::base::TCFType;
+use core_foundation::base::ToVoid;
 use core_foundation::data::CFData;
 use core_foundation::dictionary::CFDictionary;
 use core_foundation::error::CFError;
@@ -30,7 +31,8 @@ pub trait SecCertificateExt {
     ///
     /// The `keys` argument can optionally be used to filter the properties loaded to an explicit
     /// subset.
-    fn properties(&self, keys: Option<&[CertificateOid]>) -> Result<CertificateProperties, CFError>;
+    fn properties(&self, keys: Option<&[CertificateOid]>)
+        -> Result<CertificateProperties, CFError>;
 
     /// Returns the SHA-256 fingerprint of the certificate.
     fn fingerprint(&self) -> Result<[u8; 32], CFError> { unimplemented!() }
@@ -40,7 +42,10 @@ impl SecCertificateExt for SecCertificate {
     fn common_name(&self) -> Result<String, Error> {
         unsafe {
             let mut string = ptr::null();
-            cvt(SecCertificateCopyCommonName(self.as_concrete_TypeRef(), &mut string))?;
+            cvt(SecCertificateCopyCommonName(
+                self.as_concrete_TypeRef(),
+                &mut string,
+            ))?;
             Ok(CFString::wrap_under_create_rule(string).to_string())
         }
     }
@@ -61,12 +66,18 @@ impl SecCertificateExt for SecCertificate {
         #[allow(deprecated)]
         unsafe {
             let mut key = ptr::null_mut();
-            cvt(SecCertificateCopyPublicKey(self.as_concrete_TypeRef(), &mut key))?;
+            cvt(SecCertificateCopyPublicKey(
+                self.as_concrete_TypeRef(),
+                &mut key,
+            ))?;
             Ok(SecKey::wrap_under_create_rule(key))
         }
     }
 
-    fn properties(&self, keys: Option<&[CertificateOid]>) -> Result<CertificateProperties, CFError> {
+    fn properties(
+        &self,
+        keys: Option<&[CertificateOid]>,
+    ) -> Result<CertificateProperties, CFError> {
         unsafe {
             let keys = keys.map(|oids| {
                 let oids = oids.iter().map(|oid| oid.to_str()).collect::<Vec<_>>();
@@ -83,7 +94,9 @@ impl SecCertificateExt for SecCertificate {
             let dictionary = SecCertificateCopyValues(self.as_concrete_TypeRef(), keys, &mut error);
 
             if error.is_null() {
-                Ok(CertificateProperties(CFDictionary::wrap_under_create_rule(dictionary)))
+                Ok(CertificateProperties(CFDictionary::wrap_under_create_rule(
+                    dictionary,
+                )))
             } else {
                 Err(CFError::wrap_under_create_rule(error))
             }
@@ -106,8 +119,7 @@ pub struct CertificateProperties(CFDictionary);
 
 impl CertificateProperties {
     /// Retrieves a specific property identified by its OID.
-    #[must_use]
-    pub fn get(&self, oid: CertificateOid) -> Option<CertificateProperty> {
+    #[must_use] pub fn get(&self, oid: CertificateOid) -> Option<CertificateProperty> {
         unsafe {
             self.0.find(oid.as_ptr().cast::<c_void>()).map(|value| {
                 CertificateProperty(CFDictionary::wrap_under_get_rule(*value as *mut _))
@@ -132,11 +144,14 @@ impl CertificateProperty {
     #[must_use]
     pub fn get(&self) -> PropertyType {
         unsafe {
-            let type_ = CFString::wrap_under_get_rule(*self.0.get(kSecPropertyKeyType.to_void()) as *mut _);
+            let type_ =
+                CFString::wrap_under_get_rule(*self.0.get(kSecPropertyKeyType.to_void()) as *mut _);
             let value = self.0.get(kSecPropertyKeyValue.to_void());
 
             if type_ == CFString::wrap_under_get_rule(kSecPropertyTypeSection) {
-                PropertyType::Section(PropertySection(CFArray::wrap_under_get_rule((*value).cast())))
+                PropertyType::Section(PropertySection(CFArray::wrap_under_get_rule(
+                    (*value).cast(),
+                )))
             } else if type_ == CFString::wrap_under_get_rule(kSecPropertyTypeString) {
                 PropertyType::String(CFString::wrap_under_get_rule((*value).cast()))
             } else {
@@ -173,7 +188,7 @@ impl<'a> IntoIterator for &'a PropertySection {
 /// An iterator over the properties in a section.
 pub struct PropertySectionIter<'a>(CFArrayIterator<'a, CFDictionary>);
 
-impl Iterator for PropertySectionIter<'_> {
+impl<'a> Iterator for PropertySectionIter<'a> {
     type Item = CertificateProperty;
 
     #[inline]
@@ -220,7 +235,10 @@ mod test {
     fn fingerprint() {
         let certificate = certificate();
         let fingerprint = p!(certificate.fingerprint());
-        assert_eq!("af9dd180a326ae08b37e6398f9262f8b9d4c55674a233a7c84975024f873655d", hex::encode(fingerprint));
+        assert_eq!(
+            "af9dd180a326ae08b37e6398f9262f8b9d4c55674a233a7c84975024f873655d",
+            hex::encode(fingerprint)
+        );
     }
 
     #[test]

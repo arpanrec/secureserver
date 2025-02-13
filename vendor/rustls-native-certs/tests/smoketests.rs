@@ -12,7 +12,7 @@ use std::{env, panic};
 // the global env var configuration in the env var test interferes with the others.
 use serial_test::serial;
 
-/// Check if connection to site works using native roots.
+/// Check if connection to site works
 ///
 /// Yields an Err if and only if there is an issue connecting that
 /// appears to be due to a certificate problem.
@@ -22,23 +22,10 @@ use serial_test::serial;
 /// Panics on errors unrelated to the TLS connection like errors during
 /// certificate loading, or connecting via TCP.
 fn check_site(domain: &str) -> Result<(), ()> {
-    check_site_with_roots(domain, rustls_native_certs::load_native_certs().unwrap())
-}
-
-/// Check if connection to site works using the given roots.
-///
-/// Yields an Err if and only if there is an issue connecting that
-/// appears to be due to a certificate problem.
-///
-/// # Panics
-///
-/// Panics on errors unrelated to the TLS connection like connecting via TCP.
-fn check_site_with_roots(
-    domain: &str,
-    root_certs: Vec<pki_types::CertificateDer<'static>>,
-) -> Result<(), ()> {
     let mut roots = rustls::RootCertStore::empty();
-    roots.add_parsable_certificates(root_certs);
+    for cert in rustls_native_certs::load_native_certs().unwrap() {
+        roots.add(cert).unwrap();
+    }
 
     let config = rustls::ClientConfig::builder()
         .with_root_certificates(roots)
@@ -210,14 +197,7 @@ fn google_with_dir_but_broken_file() {
 
     env::set_var("SSL_CERT_DIR", "/etc/ssl/certs");
     env::set_var("SSL_CERT_FILE", "not-exist");
-    let res = rustls_native_certs::load_native_certs();
-
-    let first_err = res.errors.first().unwrap().to_string();
-    dbg!(&first_err);
-    assert!(first_err.contains("from file"));
-    assert!(first_err.contains("not-exist"));
-
-    check_site_with_roots("google.com", res.certs).unwrap();
+    check_site("google.com").unwrap();
 }
 
 #[test]
@@ -232,14 +212,7 @@ fn google_with_file_but_broken_dir() {
 
     env::set_var("SSL_CERT_DIR", "/not-exist");
     env::set_var("SSL_CERT_FILE", "/etc/ssl/certs/ca-certificates.crt");
-    let res = rustls_native_certs::load_native_certs();
-
-    let first_err = res.errors.first().unwrap().to_string();
-    dbg!(&first_err);
-    assert!(first_err.contains("opening directory"));
-    assert!(first_err.contains("/not-exist"));
-
-    check_site_with_roots("google.com", res.certs).unwrap();
+    check_site("google.com").unwrap();
 }
 
 #[test]
@@ -254,16 +227,10 @@ fn nothing_works_with_broken_file_and_dir() {
 
     env::set_var("SSL_CERT_DIR", "/not-exist");
     env::set_var("SSL_CERT_FILE", "not-exist");
-    let res = rustls_native_certs::load_native_certs();
-    assert_eq!(res.errors.len(), 2);
-
-    let first_err = res.errors.first().unwrap().to_string();
-    dbg!(&first_err);
-    assert!(first_err.contains("from file"));
-    assert!(first_err.contains("not-exist"));
-
-    let second_err = res.errors.get(1).unwrap().to_string();
-    dbg!(&second_err);
-    assert!(second_err.contains("opening directory"));
-    assert!(second_err.contains("/not-exist"));
+    assert_eq!(
+        rustls_native_certs::load_native_certs()
+            .unwrap_err()
+            .to_string(),
+        "could not load certs from file not-exist: No such file or directory (os error 2)"
+    );
 }
