@@ -4,9 +4,8 @@ replace-with = "vendored-sources"
 [source.vendored-sources]
 directory = "vendor"
 
-# [target.aarch64-unknown-linux-gnu]
-# linker = "aarch64-linux-gnu-gcc"
-# cxx = "/usr/sbin/c++"
-# cc = "aarch64-linux-gnu-gcc"
+[target.aarch64-unknown-linux-gnu]
+linker = "aarch64-linux-gnu-gcc"
+cxx = "aarch64-linux-gnu-g++"
+cc = "aarch64-linux-gnu-gcc"
 # ENV ENV CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc CC_aarch64_unknown_linux_gnu=aarch64-linux-gnu-gcc CXX_aarch64_unknown_linux_gnu=aarch64-linux-gnu-g++
-
