@@ -1,0 +1,7 @@
+status = [
+  "build (ubuntu-latest, stable)",
+  "build (ubuntu-latest, nightly)",
+  "build (windows-latest, stable)",
+  "build (macOS-latest, stable)",
+]
+use_squash_merge = true
