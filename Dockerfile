@@ -1,15 +1,3 @@
-FROM docker.io/library/rust:1.84.1-bullseye AS builder
+FROM mcr.microsoft.com/devcontainers/base:bullseye
 
-RUN apt-get update && apt-get install -y cmake --no-install-recommends
-
-WORKDIR /usr/src/app
-
-COPY . .
-
-RUN cargo build --release --offline
-
-FROM docker.io/library/debian:bullseye-slim
-
-COPY --from=builder /usr/src/app/target/release/secretsquirrel /usr/local/bin/secretsquirrel
-
-CMD ["/usr/local/bin/secretsquirrel"]
+RUN apt-get update && apt-get install -y cmake
