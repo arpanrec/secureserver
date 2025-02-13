@@ -6,9 +6,7 @@ WORKDIR /usr/src/app
 
 COPY . .
 
-ENV RUST_BACKTRACE=full
-
-RUN cargo build --release
+RUN cargo build --release --offline
 
 FROM docker.io/library/debian:bullseye-slim
 
