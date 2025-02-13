@@ -11,7 +11,7 @@ env:
     DEBIAN_FRONTEND: noninteractive
 
 jobs:
-    build:
+    test:
         runs-on: ubuntu-latest
 
         steps:
@@ -19,8 +19,6 @@ jobs:
 
             - uses: Swatinem/rust-cache@v2.7.7
 
-            - name: Build
+            - name: Test
               run: |+
-                  sudo apt-get update && sudo apt-get install -y gcc-aarch64-linux-gnu
-                  rustup target add aarch64-unknown-linux-gnu
-                  cargo build --target aarch64-unknown-linux-gnu --release
+                  cargo test --all
