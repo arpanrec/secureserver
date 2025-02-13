@@ -20,8 +20,22 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 struct MainState {
     data: Arc<RwLock<HashMap<String, u32>>>,
 }
-#[tokio::main]
-async fn main() {
+
+// #[tokio::main]
+fn main() {
+    println!("Starting Secret Squirrel...");
+    let rt = tokio::runtime::Builder::new_multi_thread()
+        .worker_threads(4)
+        .enable_all()
+        .build()
+        .unwrap();
+    rt.block_on(async {
+        axum_server().await;
+    });
+}
+
+async fn axum_server() {
+    print!("Starting server...");
     tracing_subscriber::registry()
         .with(
             tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
