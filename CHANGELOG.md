@@ -1,6 +1,6 @@
-# [1.3.0](https://github.com/arpanrec/secretsquirrel/compare/1.2.0...1.3.0) (2025-02-14)
+# [1.4.0](https://github.com/arpanrec/secretsquirrel/compare/1.3.0...1.4.0) (2025-02-14)
 
 
 ### Features
 
-* release test ([05a65f5](https://github.com/arpanrec/secretsquirrel/commit/05a65f55cc27d1467b731fd0bc9eb01e1600c816))
+* add debug message to build script ([dce7dc4](https://github.com/arpanrec/secretsquirrel/commit/dce7dc4235b37f2c64c5828eccd243477117b418))
