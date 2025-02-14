@@ -10,21 +10,8 @@ export CC_aarch64_unknown_linux_gnu=aarch64-linux-gnu-gcc
 export CXX_aarch64_unknown_linux_gnu=aarch64-linux-gnu-g++
 rustup target add aarch64-unknown-linux-gnu
 cargo build --target aarch64-unknown-linux-gnu --release
-echo "Build completed"
 
+mkdir -p /tmp/secretsquirrel
 rm -rf /tmp/secretsquirrel/aarch64*
-echo "Cleaned up old files"
-
-pwd
-ls -altrh ./
-
-pwd
-ls -altrh ./target
-
-pwd
-ls -altrh ./target/aarch64-unknown-linux-gnu
-
-pwd
-ls -altrh ./target/aarch64-unknown-linux-gnu/release
 
 mv ./target/aarch64-unknown-linux-gnu/release/secretsquirrel /tmp/secretsquirrel/aarch64-secretsquirrel
