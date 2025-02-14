@@ -3,7 +3,8 @@ set -euo pipefail
 
 export DEBIAN_FRONTEND=noninteractive
 sudo apt-get update &&
-    sudo apt-get update && sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu libc6-dev-arm64-cross
+    sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu libc6-dev-arm64-cross
+
 export CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc
 export CC_aarch64_unknown_linux_gnu=aarch64-linux-gnu-gcc
 export CXX_aarch64_unknown_linux_gnu=aarch64-linux-gnu-g++
