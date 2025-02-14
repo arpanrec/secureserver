@@ -5,7 +5,6 @@ name: Release
         branches:
             - main
     workflow_dispatch:
-
 jobs:
     release:
         timeout-minutes: 30
@@ -37,11 +36,11 @@ jobs:
 
             - name: Install node dependencies
               run: |+
-                  npm i semantic-release@24.2.0 \
-                      @semantic-release/commit-analyzer@13.0.0 \
-                      @semantic-release/release-notes-generator@14.0.2 \
+                  npm i semantic-release@24.2.2 \
+                      @semantic-release/commit-analyzer@13.0.1 \
+                      @semantic-release/release-notes-generator@14.0.3 \
                       @semantic-release/changelog@6.0.3 \
-                      @semantic-release/exec@6.0.3 \
+                      @semantic-release/exec@7.0.3 \
                       @semantic-release/git@10.0.1 \
                       @semantic-release/github@11.0.1 -D
 
@@ -50,7 +49,7 @@ jobs:
                   git config --global user.email "${{ steps.import-gpg.outputs.email }}"
                   git config --global user.name "${{ steps.import-gpg.outputs.name }}"
                   git config --global user.name "${{ steps.import-gpg.outputs.name }}"
-                  npx semantic-release@24.2.0 --extends ./.github/files/release.config.cjs
+                  npx semantic-release@24.2.2 --extends ./.github/files/release.config.cjs
               env:
                   GITHUB_TOKEN: "${{ secrets.GH_BOT_API_TOKEN }}"
                   GIT_AUTHOR_NAME: "${{ steps.import-gpg.outputs.name }}"

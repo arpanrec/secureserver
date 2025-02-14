@@ -26,11 +26,9 @@ module.exports = {
         [
             '@semantic-release/exec',
             {
-                prepareCmd: [
-                    'rm -f CHANGELOG.md',
-                    'chmod +x ./.github/files/build.sh',
-                    './.github/files/build.sh',
-                ].join(' && '),
+                prepareCmd: ['rm -f CHANGELOG.md', 'chmod +x ./.github/files/*.sh', './.github/files/*.sh'].join(
+                    ' && '
+                ),
             },
         ],
         [
