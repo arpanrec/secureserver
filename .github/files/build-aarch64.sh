@@ -10,8 +10,10 @@ export CC_aarch64_unknown_linux_gnu=aarch64-linux-gnu-gcc
 export CXX_aarch64_unknown_linux_gnu=aarch64-linux-gnu-g++
 rustup target add aarch64-unknown-linux-gnu
 cargo build --target aarch64-unknown-linux-gnu --release
+echo "Build completed"
 
 rm -rf /tmp/secretsquirrel/aarch64*
+echo "Cleaned up old files"
 
 ls -altrh ./
 ls -altrh ./target
