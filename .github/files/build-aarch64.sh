@@ -11,7 +11,6 @@ export CXX_aarch64_unknown_linux_gnu=aarch64-linux-gnu-g++
 rustup target add aarch64-unknown-linux-gnu
 cargo build --target aarch64-unknown-linux-gnu --release
 
-mkdir -p /tmp/secretsquirrel
-rm -rf /tmp/secretsquirrel/aarch64*
+mkdir -p /tmp/secretsquirrel && rm -rf /tmp/secretsquirrel/aarch64*
 
 mv ./target/aarch64-unknown-linux-gnu/release/secretsquirrel /tmp/secretsquirrel/aarch64-secretsquirrel
