@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -xeuo pipefail
 
 export DEBIAN_FRONTEND=noninteractive
 sudo apt-get update &&
@@ -15,9 +15,16 @@ echo "Build completed"
 rm -rf /tmp/secretsquirrel/aarch64*
 echo "Cleaned up old files"
 
+pwd
 ls -altrh ./
+
+pwd
 ls -altrh ./target
+
+pwd
 ls -altrh ./target/aarch64-unknown-linux-gnu
+
+pwd
 ls -altrh ./target/aarch64-unknown-linux-gnu/release
 
 mv ./target/aarch64-unknown-linux-gnu/release/secretsquirrel /tmp/secretsquirrel/aarch64-secretsquirrel
