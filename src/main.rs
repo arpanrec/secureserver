@@ -1,4 +1,7 @@
+mod physical;
+use crate::physical::Storage;
 use axum::extract::State;
+use axum::routing::post;
 use axum::{
     body::Body,
     extract,
@@ -10,68 +13,54 @@ use axum::{
     routing::get,
     Router,
 };
-use secretsquirrel::physical::{delete, read, write};
-use std::collections::HashMap;
-use std::sync::Arc;
-use tokio::sync::RwLock;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 struct MainState {
-    data: Arc<RwLock<HashMap<String, u32>>>,
+    storage: Storage,
+    auth_conf: String,
+    listen: String,
 }
 
 // #[tokio::main]
 fn main() {
     println!("Starting Secret Squirrel...");
-    let rt = tokio::runtime::Builder::new_multi_thread()
-        .worker_threads(4)
-        .enable_all()
-        .build()
-        .unwrap();
+    let storage: Storage = Storage::new();
+    let auth_conf = std::env::var("SQ_AUTH_CONF").unwrap_or("admin".to_string());
+    let listen = std::env::var("SQ_LISTEN").unwrap_or("0.0.0.0:3000".to_string());
+    let shared_state = MainState { storage, auth_conf, listen };
+    let rt = tokio::runtime::Builder::new_multi_thread().worker_threads(4).enable_all().build().unwrap();
     rt.block_on(async {
-        axum_server().await;
+        axum_server(shared_state).await;
     });
 }
 
-async fn axum_server() {
-    print!("Starting server...");
+async fn axum_server(shared_state: MainState) {
+    println!("Starting server...");
+
     tracing_subscriber::registry()
         .with(
-            tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
-                format!("{}=debug,tower_http=debug", env!("CARGO_CRATE_NAME")).into()
-            }),
+            tracing_subscriber::EnvFilter::try_from_default_env()
+                .unwrap_or_else(|_| format!("{}=debug,tower_http=debug", env!("CARGO_CRATE_NAME")).into()),
         )
         .with(tracing_subscriber::fmt::layer())
         .init();
-    let shared_state = Arc::new(MainState {
-        data: Arc::new(RwLock::new(HashMap::new())),
-    });
+    let addr: std::net::SocketAddr = shared_state.listen.parse().unwrap();
     let app = Router::new()
-        .route(
-            "/secret/{*key}",
-            get(handle_get).post(handle_post).delete(handle_delete),
-        )
+        .route("/secret/{*key}", get(handle_get).delete(handle_delete))
+        .route("/secret/{*key}", post(handle_post))
         .route("/{*key}", axum::routing::any(handle_any))
-        .layer(middleware::from_fn_with_state(
-            shared_state.clone(),
-            print_request_response,
-        ))
+        .layer(middleware::from_fn_with_state(shared_state.clone(), auth_layer))
         .with_state(shared_state);
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
+
+    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
     axum::serve(listener, app).await.unwrap();
 }
 
-async fn handle_get(
-    Path(path): Path<String>,
-    State(state): State<Arc<MainState>>,
-) -> Response<String> {
-    let map = state.data.read().await;
-    let counter = map.get("counter").unwrap();
-    println!("Counter in get: {}", counter);
-    drop(map);
+async fn handle_get(Path(path): Path<String>, State(state): State<MainState>) -> Response<String> {
     println!("Received request for key: {}", path);
-    let value = read(&path).await;
+    let mut storage = state.storage;
+    let value = storage.read(&path).await;
     println!("Read value: {:?}", value);
     let builder = Response::builder();
     if let Some(value) = value {
@@ -91,45 +80,49 @@ async fn handle_get(
     }
 }
 
-async fn handle_post(Path(path): Path<String>, body: String) -> Response<String> {
+async fn handle_post(Path(path): Path<String>, State(state): State<MainState>, body: String) -> Response<String> {
     println!("Received request for key: {}", path);
     println!("Received body: {}", body);
-    write(&path, &body).await;
-    Response::new("".to_string())
+    let mut storage = state.storage;
+    storage.write(&path, &body).await;
+    Response::builder()
+        .status(StatusCode::CREATED)
+        .header("Content-Type", "text/plain")
+        .body("".to_string())
+        .expect("Failed to send response")
 }
 
-async fn handle_delete(Path(path): Path<String>) -> Response<String> {
+async fn handle_delete(Path(path): Path<String>, State(state): State<MainState>) -> Response<String> {
     println!("Received request for key: {}", path);
-    delete(&path).await;
+    let mut storage = state.storage;
+    storage.delete(&path).await;
     Response::new("".to_string())
 }
 
 async fn handle_any(Path(path): Path<String>, request: http::Request<Body>) -> Response<String> {
-    println!(
-        "Received request for lock with method: {:?}",
-        request.method()
-    );
+    println!("Received request for lock with method: {:?}", request.method());
     println!("Received request for key: {}", path);
     Response::new("".to_string())
 }
 
-async fn print_request_response(
-    State(state): State<Arc<MainState>>,
-    request: extract::Request,
-    next: Next,
-) -> impl IntoResponse {
-    let mut data = state.data.write().await;
-    let counter = data.entry("counter".to_string()).or_insert(0);
-    *counter += 1;
-    let is_counter_even = *counter % 2 == 0;
-    drop(data);
-    if is_counter_even {
+async fn auth_layer(State(state): State<MainState>, request: extract::Request, next: Next) -> impl IntoResponse {
+    let auth_conf: String = state.auth_conf;
+    let mut is_authorized = false;
+    if let Some(header) = request.headers().get("Authorization") {
+        if let Ok(value) = header.to_str() {
+            if value == auth_conf {
+                is_authorized = true;
+            }
+        }
+    }
+    if is_authorized {
+        next.run(request).await.into_response()
+    } else {
+        println!("Unauthorized request");
         Response::builder()
             .status(StatusCode::UNAUTHORIZED)
             .header("Content-Type", "text/plain")
             .body("Unauthorized".into())
             .unwrap()
-    } else {
-        next.run(request).await
     }
 }
