@@ -1,7 +1,7 @@
-# [1.1.0](https://github.com/arpanrec/secretsquirrel/compare/1.0.0...1.1.0) (2025-02-14)
+# [1.2.0](https://github.com/arpanrec/secretsquirrel/compare/1.1.0...1.2.0) (2025-02-14)
 
 
 ### Features
 
-* add x86_64 build script and streamline aarch64 cleanup process ([ae26226](https://github.com/arpanrec/secretsquirrel/commit/ae26226365f8a20727ef505473ab4a8cd42c95a4))
-* release test ([b288631](https://github.com/arpanrec/secretsquirrel/commit/b28863142ee25e5c71a09e79d37915dcb65399d9))
+* fix build script to ensure x86_64 binary is moved correctly ([c2a4da9](https://github.com/arpanrec/secretsquirrel/commit/c2a4da987b5d0fd40804a53d29cfa634440cecb2))
+* release test ([a3133af](https://github.com/arpanrec/secretsquirrel/commit/a3133af2a42fa2649c1be1000601ff8183169572))
