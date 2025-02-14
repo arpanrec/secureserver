@@ -18,5 +18,6 @@ echo "Cleaned up old files"
 ls -altrh ./
 ls -altrh ./target
 ls -altrh ./target/aarch64-unknown-linux-gnu
+ls -altrh ./target/aarch64-unknown-linux-gnu/release
 
 mv ./target/aarch64-unknown-linux-gnu/release/secretsquirrel /tmp/secretsquirrel/aarch64-secretsquirrel
