@@ -12,4 +12,9 @@ rustup target add aarch64-unknown-linux-gnu
 cargo build --target aarch64-unknown-linux-gnu --release
 
 rm -rf /tmp/secretsquirrel/aarch64*
-mv target/aarch64-unknown-linux-gnu/release/secretsquirrel /tmp/secretsquirrel/aarch64-secretsquirrel
+
+ls -altrh ./
+ls -altrh ./target
+ls -altrh ./target/aarch64-unknown-linux-gnu
+
+mv ./target/aarch64-unknown-linux-gnu/release/secretsquirrel /tmp/secretsquirrel/aarch64-secretsquirrel
