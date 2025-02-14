@@ -10,3 +10,4 @@
 * release test ([39f8d46](https://github.com/arpanrec/secretsquirrel/commit/39f8d4607eb0a229dd9c01eeacf41401d7859449))
 * release test ([fd960ed](https://github.com/arpanrec/secretsquirrel/commit/fd960edefbb25ec5da842f8bc43faaa3f20221db))
 * streamline aarch64 build script by removing redundant output and adding cleanup steps ([42c729a](https://github.com/arpanrec/secretsquirrel/commit/42c729aea2c8cf4f47f6981346410ea34bb3fea5))
+* update release configuration to include cargo versioning and additional assets ([72bb482](https://github.com/arpanrec/secretsquirrel/commit/72bb4823132b9b9f26b31e94bdb1aa7e942e9de3))
