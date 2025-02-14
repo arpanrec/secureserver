@@ -26,9 +26,13 @@ module.exports = {
         [
             '@semantic-release/exec',
             {
-                prepareCmd: ['rm -f CHANGELOG.md', 'chmod +x ./.github/files/*.sh', './.github/files/*.sh'].join(
-                    ' && '
-                ),
+                prepareCmd: [
+                    'rm -f CHANGELOG.md',
+                    'cargo install cargo-edit',
+                    'cargo set-version ${nextRelease.version}',
+                    'chmod +x ./.github/files/*.sh',
+                    './.github/files/*.sh',
+                ].join(' && '),
             },
         ],
         [
@@ -40,7 +44,7 @@ module.exports = {
         [
             '@semantic-release/git',
             {
-                assets: ['CHANGELOG.md'],
+                assets: ['CHANGELOG.md', 'Cargo.toml', 'Cargo.lock'],
                 message: 'chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}',
             },
         ],
