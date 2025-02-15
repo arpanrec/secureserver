@@ -18,6 +18,7 @@
 * enhance aarch64 build script with additional debugging output ([77060dd](https://github.com/arpanrec/secretsquirrel/commit/77060dd4e913c5169e4d12552401059104eaa7e6))
 * enhance aarch64 build script with completion messages and cleanup ([2c7aa72](https://github.com/arpanrec/secretsquirrel/commit/2c7aa72336b72eeded95912aed6300d3ddbd167c))
 * fix build script to ensure x86_64 binary is moved correctly ([c2a4da9](https://github.com/arpanrec/secretsquirrel/commit/c2a4da987b5d0fd40804a53d29cfa634440cecb2))
+* release test ([446180d](https://github.com/arpanrec/secretsquirrel/commit/446180d5c6325b4c759e92b21897cf656a8c0fa3))
 * release test ([71bc018](https://github.com/arpanrec/secretsquirrel/commit/71bc0188c748fdacd82e18183b1df19ed99fe035))
 * release test ([99aef87](https://github.com/arpanrec/secretsquirrel/commit/99aef877c6025ca26e28a8d170ed7e9225ba3305))
 * release test ([05a65f5](https://github.com/arpanrec/secretsquirrel/commit/05a65f55cc27d1467b731fd0bc9eb01e1600c816))
@@ -30,3 +31,8 @@
 * specify build scripts for aarch64 and x86_64 architectures ([76a8d6f](https://github.com/arpanrec/secretsquirrel/commit/76a8d6f18781b66d3054ab90d2da794e7993f789))
 * streamline aarch64 build script by removing redundant output and adding cleanup steps ([42c729a](https://github.com/arpanrec/secretsquirrel/commit/42c729aea2c8cf4f47f6981346410ea34bb3fea5))
 * update release configuration to include cargo versioning and additional assets ([72bb482](https://github.com/arpanrec/secretsquirrel/commit/72bb4823132b9b9f26b31e94bdb1aa7e942e9de3))
+
+
+### BREAKING CHANGES
+
+* test1
